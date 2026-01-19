@@ -18,6 +18,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
     proofImage: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const t = TRANSLATIONS[lang].checkout;
@@ -31,6 +32,12 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({ ...prev, proofImage: e.target.files![0] }));
     }
+  };
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,22 +159,63 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                   </div>
                 </div>
                 
-                {/* Dynamic Payment Info */}
-                <div className="mt-4 p-4 bg-black text-white font-mono text-xs">
-                  {formData.paymentMethod === 'BaridiMob' ? (
-                    <div className="space-y-1">
-                      <div className="text-gray-400">RIP (BaridiMob)</div>
-                      <div className="text-lg font-bold tracking-widest">00799999004106136209</div>
-                      <div className="text-gray-400 pt-1">Name: Leuchi Med Abderraouf</div>
+                {/* Dynamic Payment Info with Copy & Warning */}
+                <div className="mt-4 border-2 border-black bg-white p-4">
+                    {/* Safety Warning */}
+                    <div className="bg-yellow-100 border-l-4 border-black p-2 mb-4 text-xs">
+                        <p className="font-bold uppercase">{t.safetyTitle}</p>
+                        <p>{t.safetyText} <span className="font-black bg-yellow-300 px-1">{t.accountName}</span></p>
                     </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <div className="text-gray-400">CCP Number</div>
-                      <div className="text-lg font-bold tracking-widest">0041061362 CLE 65</div>
-                      <div className="text-gray-400 pt-1">Name: Leuchi Med Abderraouf</div>
-                      <div className="text-gray-400 pt-1">Adresse : Ain benian</div>
+
+                    {/* Account Details */}
+                    {formData.paymentMethod === 'BaridiMob' ? (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 text-xs font-bold uppercase">RIP (BaridiMob)</span>
+                          <span className="text-xs bg-black text-white px-2 py-0.5 font-bold uppercase">Gold Card</span>
+                        </div>
+                        <div className="flex gap-2">
+                           <input readOnly value="00799999004106136209" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
+                           <button 
+                             type="button"
+                             onClick={() => copyToClipboard("00799999004106136209", "rip")}
+                             className="bg-black text-white px-4 font-bold uppercase text-xs hover:bg-gray-800 transition-colors"
+                           >
+                             {copiedField === "rip" ? t.copied : t.copy}
+                           </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 text-xs font-bold uppercase">CCP Number</span>
+                          <span className="text-xs bg-black text-white px-2 py-0.5 font-bold uppercase">La Poste</span>
+                        </div>
+                         <div className="flex gap-2">
+                           <input readOnly value="0041061362 Clé 65 - Adresse : Ain benian" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
+                           <button 
+                             type="button"
+                             onClick={() => copyToClipboard("0041061362 Clé 65", "ccp")}
+                             className="bg-black text-white px-4 font-bold uppercase text-xs hover:bg-gray-800 transition-colors"
+                           >
+                              {copiedField === "ccp" ? t.copied : t.copy}
+                           </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* WhatsApp Trust Link */}
+                    <div className="mt-4 pt-4 border-t border-dashed border-gray-300 text-center">
+                        <a 
+                          href="https://wa.me/33744209020" // Replace with real number
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase hover:underline"
+                        >
+                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            {t.whatsapp}
+                        </a>
                     </div>
-                  )}
                 </div>
               </div>
 

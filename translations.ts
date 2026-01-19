@@ -57,15 +57,29 @@ export const TRANSLATIONS = {
       dropHint: "Click to Upload Payment Proof",
       confirm: "CONFIRM ORDER",
       verifying: "VERIFYING UPLOAD...",
-      processing: "PROCESSING..."
+      processing: "PROCESSING...",
+      copy: "COPY",
+      copied: "COPIED!",
+      safetyTitle: "⚠️ SECURITY CHECK",
+      safetyText: "Before sending money, ensure the account name appears as:",
+      accountName: "Leuchi Med Abderraouf",
+      whatsapp: "Need help? Chat on WhatsApp"
     },
     success: {
       title: "ORDER RECEIVED",
       status: "STATUS: VERIFYING PAYMENT",
       emailSent: "We have sent a confirmation email to:",
-      est: "Delivery Estimate: Today at 20:00.",
+      est: "Delivery Estimate: Today at 21:00.",
       spam: "* If you do not see the email, please check your Spam/Junk folder.",
       back: "BACK TO STORE"
+    },
+    trust: {
+      badge1: "OFFICIAL WARRANTY",
+      desc1: "100% Valid or full refund.",
+      badge2: "SECURE PAYMENT",
+      desc2: "Manual verification for your safety.",
+      badge3: "SUPPORT 7/7",
+      desc3: "Available daily 10:00 - 22:00."
     }
   },
   dz: {
@@ -126,15 +140,29 @@ export const TRANSLATIONS = {
       dropHint: "كليكي هنا باش تطلع التصويرة",
       confirm: "تأكيد الطلب",
       verifying: "جاري التحقق...",
-      processing: "اصبر دقيقة..."
+      processing: "اصبر دقيقة...",
+      copy: "نسخ",
+      copied: "تم النسخ!",
+      safetyTitle: "⚠️ تنبيه أمني",
+      safetyText: "قبل ما تبعث الدراهم، تأكد بلي اسم السيد يطلعلك:",
+      accountName: "Leuchi Med Abderraouf",
+      whatsapp: "حصلت؟ ارواح واتساب"
     },
     success: {
       title: "وصلتنا لاكوموند",
       status: "الحالة: رانا نفيريفيو فالدراهم",
       emailSent: "بعثنا إيميل لتأكيد الطلب لـ:",
-      est: "يوصلك الكود اليوم على 20:00 ان شاء الله.",
+      est: "يوصلك الكود اليوم على 21:00 ان شاء الله.",
       spam: "* شوف في SPAM (الرسائل غير المرغوبة) لا ملقيتوش.",
       back: "ولي للمتجر"
+    },
+    trust: {
+      badge1: "ضمان رسمي",
+      desc1: "100% تمشي أو نرجعولك دراهمك.",
+      badge2: "دفع مؤمن",
+      desc2: "حنا نفيريفيو يدويا باش مايصراللك والو.",
+      badge3: "دعم يومي",
+      desc3: "رانا هنا كل يوم من 10:00 لـ 22:00."
     }
   }
 };

@@ -1,7 +1,7 @@
 import { Product } from './types';
 
 export const STORE_NAME = "JVDZ DIGITAL";
-export const CONTACT_EMAIL = "contact@jvdzstore.com";
+export const CONTACT_EMAIL = "jvdz.store@gmail.com";
 
 // --- API CONFIGURATION ---
 // REPLACE THIS URL BELOW WITH YOUR NEW GOOGLE SCRIPT DEPLOYMENT URL

@@ -45,10 +45,13 @@ const App: React.FC = () => {
       setIsLoading(true);
       try {
         // 2. Try to fetch products (Tests GET permission)
+        // We use mode: 'cors' implicitly.
         const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`);
         
+        // If we get a 302 Redirect to a login page, response.ok might be false or type opaque in some environments
         if (!response.ok) {
-          throw new Error(`HTTP Error ${response.status}`);
+           // This usually implies a 404, 500, or 401/403 if the redirect was blocked
+           throw new Error(`HTTP Error ${response.status}`);
         }
 
         const data = await response.json();
@@ -61,7 +64,8 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error("System Check Failed:", error);
-        setSystemError("CONNECTION ERROR: Could not connect to Google. Did you set access to 'Anyone'?");
+        // We set the error but stop loading so user can dismiss it
+        setSystemError("CONNECTION ERROR: Google blocked the request (CORS). This usually means 'Who has access' is NOT 'Anyone'.");
       } finally {
         setIsLoading(false);
       }
@@ -146,10 +150,8 @@ const App: React.FC = () => {
 
   // --- Order Logic ---
   const handleCheckoutSubmit = async (formData: OrderForm) => {
-    if (systemError) {
-      alert(systemError);
-      return;
-    }
+    // Note: We allow checkout even if systemError exists, assuming the user might want to try anyway or using mock mode
+    // but the POST will likely fail if GET failed.
 
     const itemsJson = JSON.stringify(cart);
     const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -187,7 +189,8 @@ const App: React.FC = () => {
     };
 
     try {
-        // Standard FETCH request (removed no-cors to catch errors)
+        // We use standard fetch. If GET failed due to CORS, POST often fails too unless it's opaque.
+        // We try catch.
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify(payload)
@@ -211,7 +214,7 @@ const App: React.FC = () => {
 
     } catch (error) {
         console.error("Order failed", error);
-        alert("Submission Failed! Check: \n1. Is 'Who has access' set to 'Anyone'?\n2. Did you Deploy 'New Version'?");
+        alert("Connection Failed. The order could not be sent to Google Sheets.\n\nTip: Deploy a NEW VERSION as 'Anyone' access.");
     }
   };
 
@@ -336,6 +339,34 @@ const App: React.FC = () => {
                 )}
               </div>
             )}
+
+            {/* TRUST & SAFETY SECTION */}
+            <div className="mt-24 border-t-2 border-black pt-12">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="p-6 border border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                     <div className="w-12 h-12 bg-black text-white flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                     </div>
+                     <h3 className="font-black text-lg uppercase mb-2">{t.trust.badge1}</h3>
+                     <p className="text-sm text-gray-600">{t.trust.desc1}</p>
+                  </div>
+                  <div className="p-6 border border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                     <div className="w-12 h-12 bg-black text-white flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                     </div>
+                     <h3 className="font-black text-lg uppercase mb-2">{t.trust.badge2}</h3>
+                     <p className="text-sm text-gray-600">{t.trust.desc2}</p>
+                  </div>
+                  <div className="p-6 border border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                     <div className="w-12 h-12 bg-black text-white flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                     </div>
+                     <h3 className="font-black text-lg uppercase mb-2">{t.trust.badge3}</h3>
+                     <p className="text-sm text-gray-600">{t.trust.desc3}</p>
+                  </div>
+               </div>
+            </div>
+
           </main>
         );
     }
@@ -346,8 +377,17 @@ const App: React.FC = () => {
       
       {/* SYSTEM ALERT BANNER */}
       {systemError && (
-        <div className="bg-red-600 text-white p-4 text-center font-bold text-sm uppercase tracking-wider animate-pulse sticky top-0 z-[100]">
-          {systemError}
+        <div className="bg-red-600 text-white p-2 flex flex-col md:flex-row items-center justify-center gap-4 text-center sticky top-0 z-[100] shadow-md animate-slide-in-top">
+          <div className="font-bold text-xs md:text-sm uppercase tracking-wider flex items-center gap-2">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+             {systemError}
+          </div>
+          <button 
+            onClick={() => setSystemError(null)}
+            className="bg-white text-red-600 px-4 py-1 text-xs font-black uppercase tracking-widest border border-white hover:bg-red-500 hover:text-white transition-colors"
+          >
+            Use Offline Mode
+          </button>
         </div>
       )}
 
