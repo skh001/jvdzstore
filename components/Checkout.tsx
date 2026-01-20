@@ -175,10 +175,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                           <span className="text-xs bg-black text-white px-2 py-0.5 font-bold uppercase">Gold Card</span>
                         </div>
                         <div className="flex gap-2">
-                           <input readOnly value="00799999004106136209" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
+                           <input readOnly value="00799999000715821115" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
                            <button 
                              type="button"
-                             onClick={() => copyToClipboard("00799999004106136209", "rip")}
+                             onClick={() => copyToClipboard("00799999000715821115", "rip")}
                              className="bg-black text-white px-4 font-bold uppercase text-xs hover:bg-gray-800 transition-colors"
                            >
                              {copiedField === "rip" ? t.copied : t.copy}
@@ -192,10 +192,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                           <span className="text-xs bg-black text-white px-2 py-0.5 font-bold uppercase">La Poste</span>
                         </div>
                          <div className="flex gap-2">
-                           <input readOnly value="0041061362 Clé 65 - Adresse : Ain benian" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
+                           <input readOnly value="0007158211 Clé 15 - Adresse : Bains romains" className="w-full font-mono font-bold text-lg bg-gray-50 p-2 border border-gray-300 focus:outline-none"/>
                            <button 
                              type="button"
-                             onClick={() => copyToClipboard("0041061362 Clé 65", "ccp")}
+                             onClick={() => copyToClipboard("0007158211 Clé 15 - Adresse : Bains romains", "ccp")}
                              className="bg-black text-white px-4 font-bold uppercase text-xs hover:bg-gray-800 transition-colors"
                            >
                               {copiedField === "ccp" ? t.copied : t.copy}

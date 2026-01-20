@@ -1,17 +1,17 @@
 import { Product } from './types';
 
 export const STORE_NAME = "JVDZ DIGITAL";
-export const CONTACT_EMAIL = "jvdz.store@gmail.com";
+export const CONTACT_EMAIL = "contact@jvdzstore.com";
 
 // --- API CONFIGURATION ---
-// REPLACE THIS URL BELOW WITH YOUR NEW GOOGLE SCRIPT DEPLOYMENT URL
-export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwM8ALsItQrfZ3k0UD4zJdjE7hIlTxUXbQVRvSIkdfOQxeeVOoKlTP_LHqGowDXp9iy/exec"; 
+export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytoAVF6Qj8gN1D8HA9kfUL2q0YXT_Hwp2utnJh8mFlfyT78zPLZy_3tbc_xuAYrxVB/exec"; 
 
 export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "101",
     name: "EA Sports FC 26",
-    price: 12000,
+    priceDZD: 12000,
+    priceUSD: 59.99,
     category: "Game Key",
     platform: "PlayStation",
     region: "Global",
@@ -23,7 +23,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "102",
     name: "Valorant 2050 VP",
-    price: 2800,
+    priceDZD: 2800,
+    priceUSD: 19.99,
     category: "Top-up",
     platform: "Riot Games",
     region: "EU",
@@ -35,7 +36,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "103",
     name: "Free Fire 100 Diamonds",
-    price: 250,
+    priceDZD: 250,
+    priceUSD: 1.50,
     category: "Mobile",
     platform: "Garena",
     region: "Global",
@@ -47,7 +49,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "104",
     name: "PUBG Mobile 60 UC",
-    price: 180,
+    priceDZD: 180,
+    priceUSD: 0.99,
     category: "Mobile",
     platform: "Tencent",
     region: "Global",
@@ -59,7 +62,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "105",
     name: "Netflix 4K Shared",
-    price: 450,
+    priceDZD: 450,
+    priceUSD: 3.00,
     category: "Subscription",
     platform: "Netflix",
     region: "Global",
@@ -71,7 +75,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "106",
     name: "IPTV Smarters 1 Year",
-    price: 3500,
+    priceDZD: 3500,
+    priceUSD: 25.00,
     category: "Subscription",
     platform: "IPTV",
     region: "Global",
@@ -83,7 +88,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "107",
     name: "Windows 11 Pro",
-    price: 1500,
+    priceDZD: 1500,
+    priceUSD: 10.00,
     category: "Software",
     platform: "Microsoft",
     region: "Global",
@@ -95,7 +101,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "108",
     name: "Steam Wallet $20",
-    price: 4200,
+    priceDZD: 4200,
+    priceUSD: 22.00,
     category: "Gift Card",
     platform: "Steam",
     region: "US",
@@ -107,7 +114,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "109",
     name: "Kaspersky Total Security",
-    price: 2200,
+    priceDZD: 2200,
+    priceUSD: 15.00,
     category: "Software",
     platform: "Antivirus",
     region: "Global",
@@ -119,7 +127,8 @@ export const MOCK_INVENTORY: Product[] = [
   {
     uuid: "110",
     name: "Roblox 800 Robux",
-    price: 1800,
+    priceDZD: 1800,
+    priceUSD: 12.00,
     category: "Mobile",
     platform: "Roblox",
     region: "Global",
@@ -131,7 +140,7 @@ export const MOCK_INVENTORY: Product[] = [
 ];
 
 export const SYSTEM_INSTRUCTION = `You are the AI Staff for JVDZ Store. 
-1. Inventory Knowledge: We sell everything: PC (Steam, Riot, Blizzard), Console (PSN, Xbox, Nintendo), Mobile (Free Fire, PUBG, Roblox), Subs (Netflix, Spotify, IPTV), and Software (Windows, Antivirus). 
-2. Payment: BaridiMob and CCP only. 
-3. Process: Client orders -> Uploads Receipt -> We verify -> We email code at 8 PM daily. 
-4. Constraint: Be polite but short. If they ask for a human, say: 'Email us at contact@jvdzstore.com'.`;
+1. We serve Algeria (DZD/BaridiMob) and Global customers (USD/Stripe).
+2. Inventory: PC, Console, Mobile, Subs, Software.
+3. Policy: Digital codes are sent via email within 2 hours.
+4. Constraint: Be polite, short. If they ask for human: contact@jvdzstore.com`;

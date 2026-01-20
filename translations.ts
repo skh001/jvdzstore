@@ -62,7 +62,7 @@ export const TRANSLATIONS = {
       copied: "COPIED!",
       safetyTitle: "⚠️ SECURITY CHECK",
       safetyText: "Before sending money, ensure the account name appears as:",
-      accountName: "Leuchi Med Abderraouf",
+      accountName: "Khenchelaoui Noureddine",
       whatsapp: "Need help? Chat on WhatsApp"
     },
     success: {
@@ -145,7 +145,7 @@ export const TRANSLATIONS = {
       copied: "تم النسخ!",
       safetyTitle: "⚠️ تنبيه أمني",
       safetyText: "قبل ما تبعث الدراهم، تأكد بلي اسم السيد يطلعلك:",
-      accountName: "Leuchi Med Abderraouf",
+      accountName: "Khenchelaoui Noureddine",
       whatsapp: "حصلت؟ ارواح واتساب"
     },
     success: {
