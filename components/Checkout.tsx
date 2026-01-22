@@ -10,6 +10,12 @@ interface CheckoutProps {
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang }) => {
+  // --- 1. NEW STATE FOR PROMO CODE ---
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [promoStatus, setPromoStatus] = useState<'none' | 'success' | 'error'>('none');
+  // -----------------------------------
+
   const [formData, setFormData] = useState<OrderForm>({
     customerName: '',
     phone: '',
@@ -20,8 +26,12 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const t = TRANSLATIONS[lang].checkout;
+
+  // --- 2. CALCULATE TOTAL WITH DISCOUNT ---
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = subtotal - discountAmount;
+  // ----------------------------------------
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -33,6 +43,18 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
       setFormData(prev => ({ ...prev, proofImage: e.target.files![0] }));
     }
   };
+
+  // --- 3. PROMO CODE LOGIC ---
+  const handleApplyCode = () => {
+    if (promoCodeInput.trim().toUpperCase() === 'DZJV') {
+      setDiscountAmount(subtotal * 0.05); // 5% Discount
+      setPromoStatus('success');
+    } else {
+      setDiscountAmount(0);
+      setPromoStatus('error');
+    }
+  };
+  // ---------------------------
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -47,7 +69,14 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
       return;
     }
     setIsSubmitting(true);
-    await onSubmit(formData);
+    
+    // We send the extra promo info to the backend here
+    await onSubmit({ 
+        ...formData, 
+        promoCode: discountAmount > 0 ? 'DZJV' : '',
+        finalTotal: total 
+    });
+    
     setIsSubmitting(false);
   };
 
@@ -76,9 +105,44 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                 </div>
               ))}
             </div>
-            <div className="border-t-2 border-black pt-4 flex justify-between font-black text-xl">
-              <span>{t.total}</span>
-              <span className="font-mono">{total.toLocaleString()} DZD</span>
+
+            {/* --- 4. NEW PROMO CODE INPUT SECTION --- */}
+            <div className="mb-6 border-t border-dashed border-gray-400 pt-4">
+                <label className="text-xs font-bold uppercase mb-1 block">Promo Code</label>
+                <div className="flex gap-2">
+                    <input 
+                        type="text" 
+                        placeholder="CODE" 
+                        value={promoCodeInput}
+                        onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                        className="w-full border-2 border-black p-2 text-sm font-bold uppercase outline-none"
+                    />
+                    <button 
+                        type="button"
+                        onClick={handleApplyCode}
+                        className="bg-black text-white px-4 text-xs font-bold uppercase hover:bg-gray-800"
+                    >
+                        OK
+                    </button>
+                </div>
+                {promoStatus === 'success' && <p className="text-xs text-green-600 font-bold mt-1 uppercase">Code Applied (-5%)</p>}
+                {promoStatus === 'error' && <p className="text-xs text-red-600 font-bold mt-1 uppercase">Invalid Code</p>}
+            </div>
+            {/* --------------------------------------- */}
+
+            <div className="border-t-2 border-black pt-4">
+              {/* Show Subtotal if discount exists */}
+              {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>Subtotal</span>
+                    <span className="font-mono line-through">{subtotal.toLocaleString()} DZD</span>
+                  </div>
+              )}
+              
+              <div className="flex justify-between font-black text-xl">
+                <span>{t.total}</span>
+                <span className="font-mono">{total.toLocaleString()} DZD</span>
+              </div>
             </div>
             
             <div className="mt-8 p-4 border border-black bg-white">
@@ -92,7 +156,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
           </div>
         </div>
 
-        {/* Payment Form */}
+        {/* Payment Form (EXACTLY AS IT WAS) */}
         <div className="order-1 md:order-2">
           <h2 className="text-xl font-black mb-6 border-b-2 border-black pb-2 uppercase">{t.details}</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -159,15 +223,12 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                   </div>
                 </div>
                 
-                {/* Dynamic Payment Info with Copy & Warning */}
                 <div className="mt-4 border-2 border-black bg-white p-4">
-                    {/* Safety Warning */}
                     <div className="bg-yellow-100 border-l-4 border-black p-2 mb-4 text-xs">
                         <p className="font-bold uppercase">{t.safetyTitle}</p>
                         <p>{t.safetyText} <span className="font-black bg-yellow-300 px-1">{t.accountName}</span></p>
                     </div>
 
-                    {/* Account Details */}
                     {formData.paymentMethod === 'BaridiMob' ? (
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
@@ -204,10 +265,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                       </div>
                     )}
 
-                    {/* WhatsApp Trust Link */}
                     <div className="mt-4 pt-4 border-t border-dashed border-gray-300 text-center">
                         <a 
-                          href="https://wa.me/33744209020" // Replace with real number
+                          href="https://wa.me/33744209020" 
                           target="_blank" 
                           rel="noreferrer"
                           className="inline-flex items-center gap-2 text-xs font-bold uppercase hover:underline"
@@ -256,7 +316,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                    <span>{t.verifying}</span>
                  </>
               ) : (
-                <span>{t.confirm}</span>
+                <span>{t.confirm} {total.toLocaleString()} DZD</span>
               )}
             </button>
           </form>
