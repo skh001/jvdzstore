@@ -10,11 +10,12 @@ interface CheckoutProps {
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang }) => {
-  // --- 1. NEW STATE FOR PROMO CODE ---
+  // --- 1. STATE FOR PROMO CODE & STATUS ---
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [promoStatus, setPromoStatus] = useState<'none' | 'success' | 'error'>('none');
-  // -----------------------------------
+  // Status: 'none', 'success' (valid), 'error' (wrong), 'used' (déjà utilisé)
+  const [promoStatus, setPromoStatus] = useState<'none' | 'success' | 'error' | 'used'>('none'); 
+  // ----------------------------------------
 
   const [formData, setFormData] = useState<OrderForm>({
     customerName: '',
@@ -30,7 +31,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
 
   // --- 2. CALCULATE TOTAL WITH DISCOUNT ---
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const total = subtotal - discountAmount;
+  // Math.max(0, ...) empêche le total d'être négatif
+  const total = Math.max(0, subtotal - discountAmount);
   // ----------------------------------------
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -44,17 +46,33 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
     }
   };
 
-  // --- 3. PROMO CODE LOGIC ---
+  // --- 3. PROMO CODE LOGIC (JV20 = -200 DA) ---
   const handleApplyCode = () => {
-    if (promoCodeInput.trim().toUpperCase() === 'DZJV') {
-      setDiscountAmount(subtotal * 0.05); // 5% Discount
-      setPromoStatus('success');
+    const code = promoCodeInput.trim().toUpperCase();
+
+    if (code === 'JV20') {
+        // Step A: Vérifie si le client a déjà utilisé ce code
+        const hasUsed = localStorage.getItem('promo_used_JV20');
+
+        if (hasUsed === 'true') {
+            // Bloquer l'utilisation
+            setDiscountAmount(0);
+            setPromoStatus('used');
+        } else {
+            // Appliquer la réduction de 200 DA
+            // On vérifie qu'il y a quelque chose à réduire
+            if (subtotal > 0) {
+                setDiscountAmount(200); 
+                setPromoStatus('success');
+            }
+        }
     } else {
-      setDiscountAmount(0);
-      setPromoStatus('error');
+        // Mauvais code
+        setDiscountAmount(0);
+        setPromoStatus('error');
     }
   };
-  // ---------------------------
+  // --------------------------------------------
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -70,14 +88,25 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
     }
     setIsSubmitting(true);
     
-    // We send the extra promo info to the backend here
-    await onSubmit({ 
-        ...formData, 
-        promoCode: discountAmount > 0 ? 'DZJV' : '',
-        finalTotal: total 
-    });
-    
-    setIsSubmitting(false);
+    try {
+        // Envoi des infos au backend
+        await onSubmit({ 
+            ...formData, 
+            promoCode: discountAmount > 0 ? 'JV20' : '',
+            finalTotal: total 
+        });
+
+        // --- 4. VERROUILLER LE CODE APRÈS SUCCÈS ---
+        if (discountAmount > 0) {
+            localStorage.setItem('promo_used_JV20', 'true');
+        }
+        // -------------------------------------------
+
+    } catch (error) {
+        console.error("Order failed", error);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -106,7 +135,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
               ))}
             </div>
 
-            {/* --- 4. NEW PROMO CODE INPUT SECTION --- */}
+            {/* --- PROMO CODE INPUT --- */}
             <div className="mb-6 border-t border-dashed border-gray-400 pt-4">
                 <label className="text-xs font-bold uppercase mb-1 block">Promo Code</label>
                 <div className="flex gap-2">
@@ -125,13 +154,24 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                         OK
                     </button>
                 </div>
-                {promoStatus === 'success' && <p className="text-xs text-green-600 font-bold mt-1 uppercase">Code Applied (-5%)</p>}
-                {promoStatus === 'error' && <p className="text-xs text-red-600 font-bold mt-1 uppercase">Invalid Code</p>}
+                
+                {/* Messages de statut */}
+                {promoStatus === 'success' && (
+                    <p className="text-xs text-green-600 font-bold mt-1 uppercase">Code Applied (-200 DZD)</p>
+                )}
+                {promoStatus === 'error' && (
+                    <p className="text-xs text-red-600 font-bold mt-1 uppercase">Invalid Code</p>
+                )}
+                {promoStatus === 'used' && (
+                    <p className="text-xs text-orange-600 font-bold mt-1 uppercase">
+                        {lang === 'dz' ? 'Code déjà utilisé !' : 'Code already used!'}
+                    </p>
+                )}
             </div>
-            {/* --------------------------------------- */}
+            {/* ------------------------ */}
 
             <div className="border-t-2 border-black pt-4">
-              {/* Show Subtotal if discount exists */}
+              {/* Afficher le sous-total si une réduction est appliquée */}
               {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-gray-500 mb-1">
                     <span>Subtotal</span>
@@ -156,7 +196,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
           </div>
         </div>
 
-        {/* Payment Form (EXACTLY AS IT WAS) */}
+        {/* Payment Form (Reste inchangé) */}
         <div className="order-1 md:order-2">
           <h2 className="text-xl font-black mb-6 border-b-2 border-black pb-2 uppercase">{t.details}</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
