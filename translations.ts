@@ -7,7 +7,7 @@ export const TRANSLATIONS = {
     hero: {
       title: "DIGITAL\nMEGA-STORE",
       subtitle: "Premium Game Keys, Subscriptions & Software.",
-      instant: "INSTANT DELIVERY",
+      instant: "DELIVERY Between 8 AM To 11 PM",
       status: "ONLINE"
     },
     filters: {
