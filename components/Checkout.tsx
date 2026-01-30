@@ -13,7 +13,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
   // --- STATE ---
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [promoStatus, setPromoStatus] = useState<'none' | 'success' | 'error' | 'used'>('none'); 
+  
+  // Added 'expired' to the status types
+  const [promoStatus, setPromoStatus] = useState<'none' | 'success' | 'error' | 'used' | 'expired'>('none'); 
   
   const [formData, setFormData] = useState<OrderForm>({
     customerName: '',
@@ -45,24 +47,21 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
     }
   };
 
+  // --- MODIFIED PROMO CODE LOGIC ---
   const handleApplyCode = () => {
     const code = promoCodeInput.trim().toUpperCase();
+
     if (code === 'JV20') {
-        const hasUsed = localStorage.getItem('promo_used_JV20');
-        if (hasUsed === 'true') {
-            setDiscountAmount(0);
-            setPromoStatus('used');
-        } else {
-            if (subtotal > 0) {
-                setDiscountAmount(200); 
-                setPromoStatus('success');
-            }
-        }
+        // Force Expired State
+        setDiscountAmount(0);
+        setPromoStatus('expired');
     } else {
+        // Invalid Code
         setDiscountAmount(0);
         setPromoStatus('error');
     }
   };
+  // ---------------------------------
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -84,10 +83,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
             promoCode: discountAmount > 0 ? 'JV20' : '',
             finalTotal: total 
         });
-
-        if (discountAmount > 0) {
-            localStorage.setItem('promo_used_JV20', 'true');
-        }
+        
+        // No need to save to localStorage anymore since it's expired
     } catch (error) {
         console.error("Order failed", error);
     } finally {
@@ -213,8 +210,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, onBack, onSubmit, lang
                         OK
                     </button>
                 </div>
+                {/* STATUS MESSAGES */}
                 {promoStatus === 'success' && <p className="text-xs text-green-600 font-bold mt-1 uppercase">Code Applied (-200 DZD)</p>}
                 {promoStatus === 'error' && <p className="text-xs text-red-600 font-bold mt-1 uppercase">Invalid Code</p>}
+                {promoStatus === 'expired' && <p className="text-xs text-red-600 font-bold mt-1 uppercase">Code Expired!</p>}
                 {promoStatus === 'used' && <p className="text-xs text-orange-600 font-bold mt-1 uppercase">{lang === 'dz' ? 'Code déjà utilisé !' : 'Code already used!'}</p>}
             </div>
 
